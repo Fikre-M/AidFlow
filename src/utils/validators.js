@@ -13,5 +13,7 @@ export function validatePassword(password) {
 }
 
 export function validateRequired(value) {
-  return value !== null && value !== undefined && value.trim() !== ''
+  if (value === null || value === undefined) return false
+  if (typeof value === 'string') return value.trim() !== ''
+  return true
 }
