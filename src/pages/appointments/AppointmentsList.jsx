@@ -5,12 +5,31 @@ import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import Modal from '../../components/common/Modal'
 import Alert from '../../components/common/Alert'
+import Loading from '../../components/common/Loading'
 import AppointmentCard from '../../components/appointments/AppointmentCard'
 import AppointmentForm from '../../components/forms/AppointmentForm'
+import { useApp } from '../../context/AppContext'
 
 function AppointmentsList() {
-  // Mock data
-  const [appointments, setAppointments] = useState([
+  // Get data from AppContext
+  const {
+    appointments,
+    appointmentsLoading,
+    createAppointment,
+    updateAppointment,
+    deleteAppointment,
+  } = useApp()
+
+  // Local state for UI
+  const [viewMode, setViewMode] = useState('grid')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingAppointment, setEditingAppointment] = useState(null)
+  const [alert, setAlert] = useState(null)
+
+  // OLD CODE - Remove this useState with hardcoded data
+  /*const [appointments, setAppointments] = useState([
     {
       id: 1,
       title: 'Initial Consultation',
@@ -71,14 +90,16 @@ function AppointmentsList() {
       status: 'confirmed',
       notes: 'General consultation about services.'
     },
-  ])
+  ])*/
 
-  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'table'
-  const [filterStatus, setFilterStatus] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingAppointment, setEditingAppointment] = useState(null)
-  const [alert, setAlert] = useState(null)
+  // Show loading state
+  if (appointmentsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading />
+      </div>
+    )
+  }
 
   // Filter appointments
   const filteredAppointments = appointments.filter(apt => {
@@ -95,16 +116,14 @@ function AppointmentsList() {
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this appointment?')) {
-      setAppointments(appointments.filter(apt => apt.id !== id))
+      deleteAppointment(id)
       setAlert({ type: 'success', message: 'Appointment deleted successfully' })
       setTimeout(() => setAlert(null), 3000)
     }
   }
 
   const handleStatusChange = (id, newStatus) => {
-    setAppointments(appointments.map(apt =>
-      apt.id === id ? { ...apt, status: newStatus } : apt
-    ))
+    updateAppointment(id, { status: newStatus })
     setAlert({ type: 'success', message: 'Appointment status updated' })
     setTimeout(() => setAlert(null), 3000)
   }
@@ -112,17 +131,11 @@ function AppointmentsList() {
   const handleFormSubmit = (formData) => {
     if (editingAppointment) {
       // Update existing
-      setAppointments(appointments.map(apt =>
-        apt.id === editingAppointment.id ? { ...apt, ...formData } : apt
-      ))
+      updateAppointment(editingAppointment.id, formData)
       setAlert({ type: 'success', message: 'Appointment updated successfully' })
     } else {
       // Create new
-      const newAppointment = {
-        id: Math.max(...appointments.map(a => a.id)) + 1,
-        ...formData
-      }
-      setAppointments([...appointments, newAppointment])
+      createAppointment(formData)
       setAlert({ type: 'success', message: 'Appointment created successfully' })
     }
     setShowEditModal(false)

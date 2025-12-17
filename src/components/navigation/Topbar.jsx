@@ -171,14 +171,20 @@ function Topbar({ onMenuClick, darkMode, onToggleDarkMode }) {
                   </Link>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 py-2">
-                  <Link
-                    to="/login"
-                    className="flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setShowProfile(false)}
+                  <button
+                    onClick={() => {
+                      // Add logout functionality here
+                      if (window.confirm('Are you sure you want to sign out?')) {
+                        // This will be connected to AuthContext
+                        window.location.href = '/login'
+                      }
+                      setShowProfile(false)
+                    }}
+                    className="flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                   >
                     <span className="mr-3">🚪</span>
                     Sign Out
-                  </Link>
+                  </button>
                 </div>
               </div>
             )}

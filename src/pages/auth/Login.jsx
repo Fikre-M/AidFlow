@@ -53,25 +53,16 @@ function Login() {
     setIsLoading(true)
     setAlert(null)
 
-    // Mock login - simulate API call
+    // Simulate API call delay
     setTimeout(() => {
+      const result = login(formData.email, formData.password)
       setIsLoading(false)
       
-      // Mock validation
-      if (formData.email === 'demo@example.com' && formData.password === 'password') {
-        // Login user through context
-        const userData = {
-          id: 1,
-          name: 'Demo User',
-          email: formData.email,
-          role: 'admin'
-        }
-        
-        login(userData)
+      if (result.success) {
         setAlert({ type: 'success', message: 'Login successful! Redirecting...' })
         setTimeout(() => navigate('/dashboard'), 1500)
       } else {
-        setAlert({ type: 'error', message: 'Invalid email or password' })
+        setAlert({ type: 'error', message: result.message })
       }
     }, 1000)
   }

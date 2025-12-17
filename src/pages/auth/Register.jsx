@@ -5,8 +5,11 @@ import Button from '../../components/common/Button'
 import Alert from '../../components/common/Alert'
 import { validateEmail, validatePassword, validateRequired } from '../../utils/validators'
 
+import { useAuth } from '../../context/AuthContext'
+
 function Register() {
   const navigate = useNavigate()
+  const { register } = useAuth()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -72,11 +75,17 @@ function Register() {
     setIsLoading(true)
     setAlert(null)
 
-    // Mock registration - simulate API call
+    // Simulate API call delay
     setTimeout(() => {
+      const result = register(formData)
       setIsLoading(false)
-      setAlert({ type: 'success', message: 'Account created successfully! Redirecting...' })
-      setTimeout(() => navigate('/dashboard'), 1500)
+      
+      if (result.success) {
+        setAlert({ type: 'success', message: 'Account created successfully! Redirecting...' })
+        setTimeout(() => navigate('/dashboard'), 1500)
+      } else {
+        setAlert({ type: 'error', message: result.message })
+      }
     }, 1500)
   }
 

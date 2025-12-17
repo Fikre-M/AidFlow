@@ -11,6 +11,7 @@ function Sidebar({ isOpen, onClose }) {
     { path: '/calendar', label: 'Calendar', icon: '🗓️' },
     { path: '/ai-assistant', label: 'AI Assistant', icon: '🤖' },
     { path: '/reports', label: 'Reports', icon: '📈' },
+    { path: '/showcase', label: 'Tech Showcase', icon: '🚀' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
   ]
 

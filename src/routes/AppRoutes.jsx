@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import AuthLayout from '../layouts/AuthLayout'
+import ProtectedRoute from '../components/common/ProtectedRoute'
 import Dashboard from '../pages/dashboard/Dashboard'
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
@@ -20,6 +21,7 @@ import Calendar from '../pages/calendar/Calendar'
 import Reports from '../pages/reports/Reports'
 import Settings from '../pages/settings/Settings'
 import Profile from '../pages/profile/Profile'
+import TechShowcase from '../pages/showcase/TechShowcase'
 import NotFound from '../pages/NotFound'
 
 function AppRoutes() {
@@ -34,37 +36,42 @@ function AppRoutes() {
 
       {/* Main App Routes */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/* Appointments */}
-        <Route path="/appointments" element={<AppointmentsList />} />
-        <Route path="/appointments/new" element={<NewAppointment />} />
-        <Route path="/appointments/:id" element={<AppointmentDetails />} />
-        <Route path="/appointments/:id/edit" element={<EditAppointment />} />
-        
-        {/* Cases */}
-        <Route path="/cases" element={<CaseList />} />
-        <Route path="/cases/new" element={<NewCase />} />
-        <Route path="/cases/:id" element={<CaseDetails />} />
-        <Route path="/cases/:id/edit" element={<EditCase />} />
-        
-        {/* Clients */}
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/clients/:id" element={<ClientDetails />} />
-        
-        {/* AI Assistant */}
-        <Route path="/ai-assistant" element={<AiChatPage />} />
-        
-        {/* Calendar */}
-        <Route path="/calendar" element={<Calendar />} />
-        
-        {/* Reports */}
-        <Route path="/reports" element={<Reports />} />
-        
-        {/* Settings & Profile */}
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Appointments */}
+          <Route path="/appointments" element={<AppointmentsList />} />
+          <Route path="/appointments/new" element={<NewAppointment />} />
+          <Route path="/appointments/:id" element={<AppointmentDetails />} />
+          <Route path="/appointments/:id/edit" element={<EditAppointment />} />
+          
+          {/* Cases */}
+          <Route path="/cases" element={<CaseList />} />
+          <Route path="/cases/new" element={<NewCase />} />
+          <Route path="/cases/:id" element={<CaseDetails />} />
+          <Route path="/cases/:id/edit" element={<EditCase />} />
+          
+          {/* Clients */}
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/clients/:id" element={<ClientDetails />} />
+          
+          {/* AI Assistant */}
+          <Route path="/ai-assistant" element={<AiChatPage />} />
+          
+          {/* Calendar */}
+          <Route path="/calendar" element={<Calendar />} />
+          
+          {/* Reports */}
+          <Route path="/reports" element={<Reports />} />
+          
+          {/* Tech Showcase */}
+          <Route path="/showcase" element={<TechShowcase />} />
+          
+          {/* Settings & Profile */}
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Route>
 
       {/* 404 */}

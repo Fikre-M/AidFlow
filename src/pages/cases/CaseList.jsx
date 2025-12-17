@@ -5,12 +5,40 @@ import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import Modal from '../../components/common/Modal'
 import Alert from '../../components/common/Alert'
+import Loading from '../../components/common/Loading'
 import CaseCard from '../../components/cases/CaseCard'
 import CaseForm from '../../components/forms/CaseForm'
+import { useApp } from '../../context/AppContext'
 
 function CaseList() {
-  // Mock data
-  const [cases, setCases] = useState([
+  // Get data from AppContext
+  const {
+    cases,
+    casesLoading,
+    createCase,
+    updateCase,
+    deleteCase,
+  } = useApp()
+
+  // Local state for UI
+  const [viewMode, setViewMode] = useState('grid')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingCase, setEditingCase] = useState(null)
+  const [alert, setAlert] = useState(null)
+
+  // Show loading state
+  if (casesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading />
+      </div>
+    )
+  }
+
+  // OLD CODE - Remove this
+  /*const [cases, setCases] = useState([
     {
       id: 1,
       caseNumber: 'CASE-2024-001',
@@ -91,15 +119,9 @@ function CaseList() {
       nextAction: 'Case closed',
       dueDate: '2024-11-30'
     },
-  ])
+  ])*/
 
-  const [viewMode, setViewMode] = useState('grid')
-  const [filterStatus, setFilterStatus] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingCase, setEditingCase] = useState(null)
-  const [alert, setAlert] = useState(null)
 
   // Filter cases
   const filteredCases = cases.filter(caseItem => {
@@ -119,35 +141,24 @@ function CaseList() {
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this case?')) {
-      setCases(cases.filter(c => c.id !== id))
+      deleteCase(id)
       setAlert({ type: 'success', message: 'Case deleted successfully' })
       setTimeout(() => setAlert(null), 3000)
     }
   }
 
   const handleStatusChange = (id, newStatus) => {
-    setCases(cases.map(c =>
-      c.id === id ? { ...c, status: newStatus } : c
-    ))
+    updateCase(id, { status: newStatus })
     setAlert({ type: 'success', message: 'Case status updated' })
     setTimeout(() => setAlert(null), 3000)
   }
 
   const handleFormSubmit = (formData) => {
     if (editingCase) {
-      setCases(cases.map(c =>
-        c.id === editingCase.id ? { ...c, ...formData } : c
-      ))
+      updateCase(editingCase.id, formData)
       setAlert({ type: 'success', message: 'Case updated successfully' })
     } else {
-      const newCase = {
-        id: Math.max(...cases.map(c => c.id)) + 1,
-        caseNumber: `CASE-2024-${String(cases.length + 1).padStart(3, '0')}`,
-        ...formData,
-        openedDate: new Date().toISOString().split('T')[0],
-        lastUpdated: new Date().toISOString().split('T')[0],
-      }
-      setCases([...cases, newCase])
+      createCase(formData)
       setAlert({ type: 'success', message: 'Case created successfully' })
     }
     setShowEditModal(false)
