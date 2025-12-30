@@ -28,8 +28,12 @@ function Sidebar({ isOpen, onClose }) {
               <span className="text-2xl">🤖</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">AI CaseManager</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Smart Management</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                AI CaseManager
+              </h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Smart Management
+              </p>
             </div>
           </Link>
         </div>
@@ -43,8 +47,8 @@ function Sidebar({ isOpen, onClose }) {
                 to={item.path}
                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all ${
                   isActive(item.path)
-                    ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
                 <span className="text-xl mr-3">{item.icon}</span>
@@ -67,8 +71,12 @@ function Sidebar({ isOpen, onClose }) {
               JD
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">John Doe</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">john@example.com</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                Fikre Mariam
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                fikre@example.com
+              </p>
             </div>
           </Link>
         </div>
@@ -77,18 +85,26 @@ function Sidebar({ isOpen, onClose }) {
       {/* Mobile Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <Link to="/dashboard" className="flex items-center space-x-3" onClick={onClose}>
+          <Link
+            to="/dashboard"
+            className="flex items-center space-x-3"
+            onClick={onClose}
+          >
             <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <span className="text-2xl">🤖</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">AI CaseManager</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Smart Management</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                AI CaseManager
+              </h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Smart Management
+              </p>
             </div>
           </Link>
           <button
@@ -109,8 +125,8 @@ function Sidebar({ isOpen, onClose }) {
                 onClick={onClose}
                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all ${
                   isActive(item.path)
-                    ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
                 <span className="text-xl mr-3">{item.icon}</span>
@@ -131,14 +147,18 @@ function Sidebar({ isOpen, onClose }) {
               JD
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">John Doe</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">john@example.com</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                Fikre Mariam
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                fikre@example.com
+              </p>
             </div>
           </Link>
         </div>
       </aside>
     </>
-  )
+  );
 }
 
 export default Sidebar
