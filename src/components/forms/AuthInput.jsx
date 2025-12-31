@@ -12,7 +12,10 @@ function AuthInput({
   return (
     <div className="mb-4">
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -30,10 +33,12 @@ function AuthInput({
           value={value}
           onChange={onChange}
           required={required}
-          className={`w-full ${icon ? 'pl-10' : 'pl-4'} pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-            error 
-              ? 'border-red-500 focus:ring-red-500' 
-              : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+          className={`w-full ${
+            icon ? "pl-10" : "pl-4"
+          } pr-4 py-3 text-gray-900 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+            error
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-primary-500 focus:border-primary-500"
           }`}
         />
       </div>
@@ -44,7 +49,7 @@ function AuthInput({
         </p>
       )}
     </div>
-  )
+  );
 }
 
 export default AuthInput
