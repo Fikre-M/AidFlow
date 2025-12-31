@@ -1,32 +1,64 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 
 function AuthLayout() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl"></div>
-      </div>
+  const handleGoogleLogin = () => {
+    console.log("Google login clicked");
+  };
 
-      {/* Content */}
-      <div className="w-full max-w-md relative z-10">
-        {/* Brand Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">AI CaseManager</h1>
-          <p className="text-primary-100">Smart Appointment & Case Management</p>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 p-4">
+      <div className="container mx-auto h-full flex items-center justify-center min-h-[calc(100vh-2rem)]">
+        {/* Form Card - Always visible */}
+        <div className="w-full max-w-lg">
+          <div className="bg-white rounded-2xl shadow-xl p-4">
+            <div className="space-y-3">
+              <Outlet />
+            </div>
+          </div>
         </div>
 
-        <Outlet />
+        {/* Welcome Content - Hidden on mobile, shown on desktop right side */}
+        <div className="hidden md:block w-1/2 pl-12">
+          <div className="max-w-md">
+            <h1 className="text-3xl font-bold text-white mb-3">
+              Welcome to AI CaseManager
+            </h1>
+            <p className="text-primary-100 mb-6">
+              Smart Appointment & Case Management
+            </p>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-primary-100 text-sm">
-          <p>&copy; 2024 AI CaseManager. All rights reserved.</p>
+            <div className="space-y-3">
+              <div className="flex items-start">
+                <div className="bg-primary-400 bg-opacity-30 p-1.5 rounded-full mr-3">
+                  <span className="text-lg">📅</span>
+                </div>
+                <div>
+                  <h3 className="font-medium text-white">
+                    Efficient Case Management
+                  </h3>
+                  <p className="text-primary-100 text-xs">
+                    Organize and track all your cases
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <div className="bg-primary-400 bg-opacity-30 p-1.5 rounded-full mr-3">
+                  <span className="text-lg">🤖</span>
+                </div>
+                <div>
+                  <h3 className="font-medium text-white">AI-Powered</h3>
+                  <p className="text-primary-100 text-xs">
+                    Smart case handling and insights
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default AuthLayout
+export default AuthLayout;
