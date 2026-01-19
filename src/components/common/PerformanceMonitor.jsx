@@ -45,25 +45,33 @@ function PerformanceMonitor() {
           isDragging ? 'shadow-2xl scale-105' : ''
         } transition-all duration-200`}
       >
-        {/* Header */}
+        {/* Draggable Header */}
         <div 
           {...dragHandleProps}
-          className="flex items-center justify-between p-2 border-b border-gray-600 bg-gray-800/50 rounded-t-lg"
+          className={`flex items-center justify-between p-2 border-b border-gray-600 bg-gray-800/50 rounded-t-lg ${dragHandleProps.className} hover:bg-gray-700/50 transition-colors`}
+          title="Drag to move this panel"
         >
           <div className="flex items-center space-x-2">
+            <span className="text-gray-400 text-xs">⋮⋮</span>
             <span className="text-green-400 font-bold">⚡</span>
             <span className="text-green-400 font-bold">Performance</span>
           </div>
           <div className="flex items-center space-x-1">
             <button
-              onClick={() => setIsMinimized(!isMinimized)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsMinimized(!isMinimized)
+              }}
               className="w-5 h-5 hover:bg-gray-700 rounded flex items-center justify-center transition-colors text-gray-300 hover:text-white"
               title={isMinimized ? "Expand" : "Minimize"}
             >
               {isMinimized ? '□' : '−'}
             </button>
             <button
-              onClick={() => setIsVisible(false)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsVisible(false)
+              }}
               className="w-5 h-5 hover:bg-gray-700 rounded flex items-center justify-center transition-colors text-gray-300 hover:text-white"
               title="Hide"
             >
@@ -115,6 +123,11 @@ function PerformanceMonitor() {
                      metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'Good' : 'Needs Optimization'}
                   </span>
                 </div>
+              </div>
+
+              {/* Drag Hint */}
+              <div className="pt-1 border-t border-gray-700">
+                <span className="text-xs text-gray-500">💡 Drag this header to move</span>
               </div>
             </motion.div>
           )}

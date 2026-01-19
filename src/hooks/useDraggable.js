@@ -1,42 +1,60 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 export function useDraggable(initialPosition = { x: 16, y: 16 }) {
   const [position, setPosition] = useState(initialPosition)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const elementRef = useRef(null)
+  const dragHandleRef = useRef(null)
 
-  const handleMouseDown = (e) => {
-    if (e.target.closest('.drag-handle')) {
-      setIsDragging(true)
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      })
-      e.preventDefault()
-    }
-  }
+  const handleMouseDown = useCallback((e) => {
+    // Check if the target is within the drag handle
+    const dragHandle = dragHandleRef.current
+    if (!dragHandle) return
+    
+    // Allow dragging if clicking directly on the drag handle or its children
+    const isOnDragHandle = dragHandle === e.target || dragHandle.contains(e.target)
+    if (!isOnDragHandle) return
+    
+    // Prevent dragging if clicking on interactive elements
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return
+    
+    setIsDragging(true)
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    })
+    e.preventDefault()
+    e.stopPropagation()
+  }, [position])
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (!isDragging) return
 
     const newX = e.clientX - dragStart.x
     const newY = e.clientY - dragStart.y
 
-    // Keep within viewport bounds
-    const maxX = window.innerWidth - (elementRef.current?.offsetWidth || 200)
-    const maxY = window.innerHeight - (elementRef.current?.offsetHeight || 100)
+    // Get element dimensions
+    const element = elementRef.current
+    const elementWidth = element?.offsetWidth || 200
+    const elementHeight = element?.offsetHeight || 100
+
+    // Keep within viewport bounds with padding
+    const padding = 10
+    const maxX = window.innerWidth - elementWidth - padding
+    const maxY = window.innerHeight - elementHeight - padding
 
     setPosition({
-      x: Math.max(0, Math.min(newX, maxX)),
-      y: Math.max(0, Math.min(newY, maxY))
+      x: Math.max(padding, Math.min(newX, maxX)),
+      y: Math.max(padding, Math.min(newY, maxY))
     })
-  }
+  }, [isDragging, dragStart])
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-  }
+  }, [])
 
+  // Mouse event listeners
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove)
@@ -51,17 +69,80 @@ export function useDraggable(initialPosition = { x: 16, y: 16 }) {
         document.body.style.userSelect = ''
       }
     }
+  }, [isDragging, handleMouseMove, handleMouseUp])
+
+  // Touch event handlers for mobile
+  const handleTouchStart = useCallback((e) => {
+    const dragHandle = dragHandleRef.current
+    if (!dragHandle) return
+    
+    const isOnDragHandle = dragHandle === e.target || dragHandle.contains(e.target)
+    if (!isOnDragHandle) return
+    
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return
+    
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setDragStart({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y
+    })
+    e.preventDefault()
+  }, [position])
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging) return
+
+    const touch = e.touches[0]
+    const newX = touch.clientX - dragStart.x
+    const newY = touch.clientY - dragStart.y
+
+    const element = elementRef.current
+    const elementWidth = element?.offsetWidth || 200
+    const elementHeight = element?.offsetHeight || 100
+
+    const padding = 10
+    const maxX = window.innerWidth - elementWidth - padding
+    const maxY = window.innerHeight - elementHeight - padding
+
+    setPosition({
+      x: Math.max(padding, Math.min(newX, maxX)),
+      y: Math.max(padding, Math.min(newY, maxY))
+    })
+    e.preventDefault()
   }, [isDragging, dragStart])
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  // Touch event listeners
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('touchmove', handleTouchMove, { passive: false })
+      document.addEventListener('touchend', handleTouchEnd)
+      
+      return () => {
+        document.removeEventListener('touchmove', handleTouchMove)
+        document.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+  }, [isDragging, handleTouchMove, handleTouchEnd])
 
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      const maxX = window.innerWidth - (elementRef.current?.offsetWidth || 200)
-      const maxY = window.innerHeight - (elementRef.current?.offsetHeight || 100)
+      const element = elementRef.current
+      const elementWidth = element?.offsetWidth || 200
+      const elementHeight = element?.offsetHeight || 100
+
+      const padding = 10
+      const maxX = window.innerWidth - elementWidth - padding
+      const maxY = window.innerHeight - elementHeight - padding
 
       setPosition(prev => ({
-        x: Math.max(0, Math.min(prev.x, maxX)),
-        y: Math.max(0, Math.min(prev.y, maxY))
+        x: Math.max(padding, Math.min(prev.x, maxX)),
+        y: Math.max(padding, Math.min(prev.y, maxY))
       }))
     }
 
@@ -73,10 +154,17 @@ export function useDraggable(initialPosition = { x: 16, y: 16 }) {
     position,
     isDragging,
     elementRef,
-    handleMouseDown,
+    dragHandleRef,
     dragHandleProps: {
-      className: 'drag-handle cursor-grab active:cursor-grabbing',
-      onMouseDown: handleMouseDown
+      ref: dragHandleRef,
+      onMouseDown: handleMouseDown,
+      onTouchStart: handleTouchStart,
+      className: `cursor-grab active:cursor-grabbing select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`,
+      style: { 
+        touchAction: 'none',
+        userSelect: 'none',
+        WebkitUserSelect: 'none'
+      }
     }
   }
 }
