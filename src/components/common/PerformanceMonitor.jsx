@@ -1,21 +1,109 @@
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { usePerformance } from '../../hooks/usePerformance'
 
 // Performance monitoring component for development
 function PerformanceMonitor() {
   const { metrics } = usePerformance()
+  const [isVisible, setIsVisible] = useState(true)
+  const [isMinimized, setIsMinimized] = useState(false)
   
   if (process.env.NODE_ENV !== 'development') {
     return null
   }
 
+  if (!isVisible) {
+    return (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        onClick={() => setIsVisible(true)}
+        className="fixed bottom-4 left-4 w-12 h-12 bg-black/80 hover:bg-black/90 text-white rounded-full flex items-center justify-center z-50 backdrop-blur-sm border border-gray-600 transition-colors"
+        title="Show Performance Monitor"
+      >
+        ⚡
+      </motion.button>
+    )
+  }
+
   return (
-    <div className="fixed bottom-4 left-4 bg-black/80 text-white text-xs p-3 rounded-lg font-mono z-50 backdrop-blur-sm">
-      <div className="text-green-400 font-bold mb-1">⚡ Performance</div>
-      <div>Load: {metrics.loadTime}ms</div>
-      <div>Render: {metrics.renderTime}ms</div>
-      <div>Memory: {metrics.memoryUsage}MB</div>
-      <div>FPS: {metrics.fps}</div>
-    </div>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.9 }}
+        className="fixed bottom-4 left-4 bg-black/90 text-white text-xs rounded-lg font-mono z-50 backdrop-blur-sm border border-gray-600 shadow-lg"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-2 border-b border-gray-600">
+          <div className="flex items-center space-x-2">
+            <span className="text-green-400 font-bold">⚡</span>
+            <span className="text-green-400 font-bold">Performance</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => setIsMinimized(!isMinimized)}
+              className="w-5 h-5 hover:bg-gray-700 rounded flex items-center justify-center transition-colors"
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
+              {isMinimized ? '□' : '−'}
+            </button>
+            <button
+              onClick={() => setIsVisible(false)}
+              className="w-5 h-5 hover:bg-gray-700 rounded flex items-center justify-center transition-colors"
+              title="Hide"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <AnimatePresence>
+          {!isMinimized && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="p-3 space-y-1"
+            >
+              <div className="flex justify-between">
+                <span className="text-gray-300">Load:</span>
+                <span className="text-white font-medium">{metrics.loadTime}ms</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">Render:</span>
+                <span className="text-white font-medium">{metrics.renderTime}ms</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">Memory:</span>
+                <span className="text-white font-medium">{metrics.memoryUsage}MB</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">FPS:</span>
+                <span className={`font-medium ${metrics.fps >= 50 ? 'text-green-400' : metrics.fps >= 30 ? 'text-yellow-400' : 'text-red-400'}`}>
+                  {metrics.fps}
+                </span>
+              </div>
+              
+              {/* Performance Status */}
+              <div className="pt-2 border-t border-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    metrics.fps >= 50 && metrics.memoryUsage < 100 ? 'bg-green-400' :
+                    metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'bg-yellow-400' : 'bg-red-400'
+                  }`} />
+                  <span className="text-xs text-gray-300">
+                    {metrics.fps >= 50 && metrics.memoryUsage < 100 ? 'Excellent' :
+                     metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'Good' : 'Needs Optimization'}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 

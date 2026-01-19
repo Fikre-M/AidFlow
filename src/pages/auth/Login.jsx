@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthInput from '../../components/forms/AuthInput'
 import Button from '../../components/common/Button'
@@ -7,15 +7,31 @@ import { validateEmail, validateRequired } from '../../utils/validators'
 import { useAuth } from '../../context/AuthContext'
 
 function Login() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const navigate = useNavigate()
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState(null);
+  })
+  const [errors, setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [alert, setAlert] = useState(null)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, authLoading, navigate])
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;

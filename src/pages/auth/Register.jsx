@@ -1,23 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthInput from '../../components/forms/AuthInput'
 import Button from '../../components/common/Button'
 import Alert from '../../components/common/Alert'
 import { validateEmail, validatePassword, validateRequired } from '../../utils/validators'
-
 import { useAuth } from '../../context/AuthContext'
 
 function Register() {
-  const navigate = useNavigate();
-  const { register } = useAuth();
+  const navigate = useNavigate()
+  const { register, isAuthenticated, isLoading: authLoading } = useAuth()
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  })
+  const [errors, setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, authLoading, navigate])
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
   const [alert, setAlert] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
