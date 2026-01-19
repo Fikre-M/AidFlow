@@ -5,22 +5,34 @@ const AuthContext = createContext()
 // Mock user database in localStorage
 const USERS_KEY = 'ai_casemanager_users'
 const CURRENT_USER_KEY = 'ai_casemanager_current_user'
+const SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 24 hours
 
 // Initialize with demo user
 const initializeUsers = () => {
-  const existingUsers = localStorage.getItem(USERS_KEY)
-  if (!existingUsers) {
-    const demoUsers = [
-      {
-        id: 1,
-        name: 'Demo User',
-        email: 'demo@example.com',
-        password: 'password',
-        role: 'admin'
-      }
-    ]
-    localStorage.setItem(USERS_KEY, JSON.stringify(demoUsers))
+  try {
+    const existingUsers = localStorage.getItem(USERS_KEY)
+    if (!existingUsers) {
+      const demoUsers = [
+        {
+          id: 1,
+          name: 'Demo User',
+          email: 'demo@example.com',
+          password: 'password',
+          role: 'admin'
+        }
+      ]
+      localStorage.setItem(USERS_KEY, JSON.stringify(demoUsers))
+    }
+  } catch (error) {
+    console.error('Error initializing users:', error)
   }
+}
+
+// Check if session is valid
+const isSessionValid = (userData) => {
+  if (!userData || !userData.loginTime) return false
+  const now = Date.now()
+  return (now - userData.loginTime) < SESSION_TIMEOUT
 }
 
 export function AuthProvider({ children }) {
@@ -30,19 +42,31 @@ export function AuthProvider({ children }) {
 
   // Initialize users and check for existing session
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       try {
         initializeUsers()
-        const currentUser = localStorage.getItem(CURRENT_USER_KEY)
-        if (currentUser) {
-          const userData = JSON.parse(currentUser)
-          setUser(userData)
-          setIsAuthenticated(true)
+        
+        const currentUserData = localStorage.getItem(CURRENT_USER_KEY)
+        if (currentUserData) {
+          const userData = JSON.parse(currentUserData)
+          
+          // Check if session is still valid
+          if (isSessionValid(userData)) {
+            setUser(userData)
+            setIsAuthenticated(true)
+          } else {
+            // Session expired, clear it
+            localStorage.removeItem(CURRENT_USER_KEY)
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
         // Clear corrupted data
-        localStorage.removeItem(CURRENT_USER_KEY)
+        try {
+          localStorage.removeItem(CURRENT_USER_KEY)
+        } catch (clearError) {
+          console.error('Error clearing corrupted auth data:', clearError)
+        }
       } finally {
         setIsLoading(false)
       }
@@ -50,6 +74,27 @@ export function AuthProvider({ children }) {
 
     initAuth()
   }, [])
+
+  // Persist auth state on window focus (handles tab switching)
+  useEffect(() => {
+    const handleFocus = () => {
+      try {
+        const currentUserData = localStorage.getItem(CURRENT_USER_KEY)
+        if (currentUserData) {
+          const userData = JSON.parse(currentUserData)
+          if (isSessionValid(userData) && !isAuthenticated) {
+            setUser(userData)
+            setIsAuthenticated(true)
+          }
+        }
+      } catch (error) {
+        console.error('Error restoring auth on focus:', error)
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [isAuthenticated])
 
   const register = (userData) => {
     try {
@@ -75,8 +120,12 @@ export function AuthProvider({ children }) {
       localStorage.setItem(USERS_KEY, JSON.stringify(users))
 
       // Auto-login after registration
-      const userToStore = { ...newUser }
+      const userToStore = { 
+        ...newUser,
+        loginTime: Date.now()
+      }
       delete userToStore.password // Don't store password in session
+      
       setUser(userToStore)
       setIsAuthenticated(true)
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore))
@@ -94,11 +143,16 @@ export function AuthProvider({ children }) {
       const foundUser = users.find(u => u.email === email && u.password === password)
 
       if (foundUser) {
-        const userToStore = { ...foundUser }
+        const userToStore = { 
+          ...foundUser,
+          loginTime: Date.now()
+        }
         delete userToStore.password // Don't store password in session
+        
         setUser(userToStore)
         setIsAuthenticated(true)
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore))
+        
         return { success: true, user: userToStore }
       }
 
@@ -119,6 +173,19 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Extend session on activity
+  const extendSession = () => {
+    if (isAuthenticated && user) {
+      try {
+        const updatedUser = { ...user, loginTime: Date.now() }
+        setUser(updatedUser)
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser))
+      } catch (error) {
+        console.error('Error extending session:', error)
+      }
+    }
+  }
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -126,7 +193,8 @@ export function AuthProvider({ children }) {
       isLoading, 
       login, 
       logout, 
-      register 
+      register,
+      extendSession
     }}>
       {children}
     </AuthContext.Provider>
