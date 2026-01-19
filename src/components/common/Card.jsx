@@ -27,5 +27,3 @@ function Card({ children, title, className = '', hover = true, ...props }) {
 }
 
 export default Card
-
-export default Card
