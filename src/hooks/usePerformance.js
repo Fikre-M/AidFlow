@@ -61,20 +61,34 @@ export function usePerformance() {
     requestAnimationFrame(countFrames);
   }, []);
 
+  // useEffect(() => {
+  //   const loadTime =
+  //     performance.timing.loadEventEnd - performance.timing.navigationStart;
+  //   setMetrics((prev) => ({ ...prev, loadTime }));
 
+  //   measureFPS(); // Start FPS monitor (runs forever via RAF)
+  //   const memoryInterval = setInterval(measureMemoryUsage, 5000);
+
+  //   return () => {
+  //     clearInterval(memoryInterval);
+  //     // Note: RAF inside measureFPS self-manages
+  //   };
+  // }, []); // ← Remove deps!
+  // WRONG - causes infinite loop
+  useEffect(() => {
+    // ...
+  }, [measureFPS, measureMemoryUsage]); // deps recreate → infinite
+
+  // CORRECT - runs once
   useEffect(() => {
     const loadTime =
       performance.timing.loadEventEnd - performance.timing.navigationStart;
     setMetrics((prev) => ({ ...prev, loadTime }));
-
-    measureFPS(); // Start FPS monitor (runs forever via RAF)
+    measureFPS();
     const memoryInterval = setInterval(measureMemoryUsage, 5000);
 
-    return () => {
-      clearInterval(memoryInterval);
-      // Note: RAF inside measureFPS self-manages
-    };
-  }, []); // ← Remove deps!
+    return () => clearInterval(memoryInterval);
+  }, []); // empty deps!
 
   return {
     metrics,
