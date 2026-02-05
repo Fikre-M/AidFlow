@@ -269,7 +269,8 @@
 // }
 
 // export default Topbar
-import { useState } from "react";
+
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -284,6 +285,37 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
+
+  // Refs for click outside detection
+  const profileRef = useRef(null);
+  const newMenuRef = useRef(null);
+  const notificationsRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close Profile dropdown
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfile(false);
+      }
+      // Close New Menu dropdown
+      if (newMenuRef.current && !newMenuRef.current.contains(event.target)) {
+        setShowNewMenu(false);
+      }
+      // Close Notifications dropdown
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to sign out?")) {
@@ -381,7 +413,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
           </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative" ref={notificationsRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -402,7 +434,10 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       Notifications
                     </h3>
-                    <button className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
+                    <button
+                      className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                      onClick={() => setShowNotifications(false)}
+                    >
                       Mark all read
                     </button>
                   </div>
@@ -416,6 +451,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
                           ? "bg-blue-50 dark:bg-blue-900/10"
                           : ""
                       }`}
+                      onClick={() => setShowNotifications(false)}
                     >
                       <div className="flex items-start">
                         {notification.unread && (
@@ -447,7 +483,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
           </div>
 
           {/* Quick Actions */}
-          <div className="relative">
+          <div className="relative" ref={newMenuRef}>
             <button
               onClick={() => setShowNewMenu(!showNewMenu)}
               className="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
@@ -471,10 +507,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
             {/* New Menu Dropdown */}
             {showNewMenu && (
-              <div
-                className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50"
-                onMouseLeave={() => setShowNewMenu(false)}
-              >
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
                 <div className="py-2">
                   <Link
                     to="/appointments/new"
@@ -514,7 +547,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
           </div>
 
           {/* Profile Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={profileRef}>
             <button
               onClick={() => setShowProfile(!showProfile)}
               className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
